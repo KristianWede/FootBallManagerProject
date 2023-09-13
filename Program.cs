@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FootBallManagerProject;
 
 class Program
 {
     static void Main(string[] args)
     {
+        RoundsGenerator.GenerateLeagueData();
 
         Program prg = new Program();
 

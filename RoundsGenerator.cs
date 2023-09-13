@@ -43,7 +43,7 @@ public class RoundsGenerator
 
     private static void GenerateRound(int roundNumber)
     {
-        string filename = $"round--{roundNumber}.csv";
+        string filename = $"round-{roundNumber}.csv";
         using (StreamWriter writer = new StreamWriter(filename))
         {
             writer.WriteLine("Home team abbreviated,Away team abbreviated,Score");
