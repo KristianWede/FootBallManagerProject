@@ -18,6 +18,8 @@ class FootballClub //https://chat.openai.com/share/900f5715-2226-4cec-ab8b-a08ff
     public int Points => (GamesWon * 3) + GamesDrawn;
     public string WinningStreak { get; set; }
 
+    //public bool gameCancelled ?? {TODO}
+
     // Constructor to initialize a FootballClub instance from CSV data
     public FootballClub(string csvData)
     {
