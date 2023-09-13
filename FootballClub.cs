@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-class FootballClub
+class FootballClub //https://chat.openai.com/share/900f5715-2226-4cec-ab8b-a08fff6b70ca
 {
     public string Abbreviation { get; set; }
     public string FullClubName { get; set; }
