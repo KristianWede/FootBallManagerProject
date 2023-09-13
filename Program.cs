@@ -8,7 +8,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        RoundsGenerator.GenerateLeagueData();
 
         Program prg = new Program();
 
