@@ -58,7 +58,7 @@ public class RoundsGenerator
 
     private static void GenerateFractionRound(int roundNumber, List<string> fraction)
     {
-        string filename = $"round-{roundNumber}-fraction.csv";
+        string filename = $"round-{roundNumber}.csv";
         using (StreamWriter writer = new StreamWriter(filename))
         {
             writer.WriteLine("Home team abbreviated,Away team abbreviated,Score");

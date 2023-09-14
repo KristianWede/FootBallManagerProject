@@ -19,7 +19,6 @@ class Program
     {
         // Load setup, teams, and round data into appropriate data structures.
         // Assuming you have already loaded the data into the following lists.
-        
         List<FootballClub> clubs = LoadTeams("./csvfiler/teams.csv");
         List<List<string>> rounds = LoadRounds(); // Load round data into a list of lists.
 
