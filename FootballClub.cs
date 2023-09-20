@@ -15,15 +15,20 @@ class FootballClub //https://chat.openai.com/share/900f5715-2226-4cec-ab8b-a08ff
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
     public int GoalDifference => GoalsFor - GoalsAgainst;
-    public int Points => (GamesWon * 3) + GamesDrawn;
+    public int Points => (GamesWon * 3) + GamesDrawn; //Games won gives 3 points, games drawn gives 1 point
     public string WinningStreak { get; set; }
 
     //public bool gameCancelled ?? {TODO}
 
     // Constructor to initialize a FootballClub instance from CSV data
-    public FootballClub(string csvData)
+    public FootballClub(string csvData) //https://chat.openai.com/c/33d96e5a-ad54-497b-971f-2dd26aed23e6
     {
         var values = csvData.Split(',');
+
+        //Rule 1
+        if (values.Length < 2)
+            throw new ArgumentException("Insufficient data in csvData.");
+
         Abbreviation = values[0];
         FullClubName = values[1];
         if (values.Length > 2)
