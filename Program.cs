@@ -22,22 +22,39 @@ class Program
         List<FootballClub> clubs = LoadTeams("./csvfiler/teams.csv");
         List<List<string>> rounds = LoadRounds(); // Load round data into a list of lists.
 
-        try{
         // Process each round to update club statistics.
+
+        int roundCount = 0;
+
+        List<FootballClub> topFract = new List<FootballClub>();
+        List<FootballClub> botFract = new List<FootballClub>();
+
         foreach (var round in rounds)
         {
+            roundCount++;
+
             foreach (var match in round)
             {
+
+                /*
+                if(roundCount == 23){
+                    
+                    List<FootballClub> allSortedClubs = clubs.OrderByDescending(c => c.Points).ToList();
+
+
+                }
+                */
                 // Split the match data into components.
                 var matchData = match.Split(',');
                 string homeTeamAbbreviation = matchData[0];
                 string awayTeamAbbreviation = matchData[1];
 
                 //Rule 4
+                /*
                 if(homeTeamAbbreviation.Equals(awayTeamAbbreviation)){
                     throw new Exception("The same team cannot play against each other.");
                 }
-
+*/
                 int homeGoals = int.Parse(matchData[2].Split('-')[0]);
                 int awayGoals = int.Parse(matchData[2].Split('-')[1]);
 
@@ -46,12 +63,12 @@ class Program
                 var awayClub = clubs.First(c => c.Abbreviation == awayTeamAbbreviation);
 
                 //Checks if the teams inside the "rounds" exists inside the teams.csv //Rule 2
-                bool exists = round.Any(innerList => innerList.Contains(awayClub.FullClubName) || innerList.Contains(homeClub.FullClubName));
+                /*bool exists = round.Any(innerList => innerList.Contains(awayClub.FullClubName) || innerList.Contains(homeClub.FullClubName));
 
                 if(exists){
                     continue;
                 }
-
+*/
                 // Update club statistics based on match result.
                 homeClub.GamesPlayed++;
                 awayClub.GamesPlayed++;
@@ -83,27 +100,58 @@ class Program
             {
                 club.WinningStreak = CalculateWinningStreak(rounds, club.Abbreviation);
             }
-        }
 
+
+
+        if(roundCount == 23){
+
+        try{
+                
         // Sort clubs by points, goal difference, and goals scored.
         clubs = clubs.OrderByDescending(c => c.Points)
                      .ThenByDescending(c => c.GoalDifference)
                      .ThenByDescending(c => c.GoalsFor)
                      .ToList();
 
-        //lowerFraction
-        
+        topFract = clubs.Take(6).ToList();
+        botFract = clubs.Skip(6).Take(6).ToList();
 
-        //upperFraction
 
         }catch(Exception){
         Console.WriteLine("Something went wrong in while processing teams!");
         Environment.Exit(1); //Stops the program
         }
 
+        Console.WriteLine("League Table:");
+        displayTeams(clubs);
+
+        }
+    }
+
+    //Insert what happens after all rounds have ended;
+
+    Console.WriteLine("The top fraction as shown;");
+    displayTeams(topFract);
+
+    Console.WriteLine("The bottom fraction as shown");
+    displayTeams(botFract);
+
+}
+
+
+    public void displayTeams(List<FootballClub> clubs){
+
         try
         {
+            //To be sure that the lists end up being sorted correctly.
+        clubs = clubs.OrderByDescending(c => c.Points)
+                     .ThenByDescending(c => c.GoalDifference)
+                     .ThenByDescending(c => c.GoalsFor)
+                     .ToList();
+
+
         // Display the current standings.
+        Console.WriteLine(); // Spacing
         Console.WriteLine($"{"Pos",4} {"Special",8} {"Club Name",-25} {"GP",3} {"W",3} {"D",3} {"L",3} " +
                           $"{"GF",3} {"GA",3} {"GD",3} {"Pts",3} {"Winning Streak",12}");
         Console.WriteLine(new string('-', 80));
@@ -112,14 +160,16 @@ class Program
         {
             Console.WriteLine($"{i + 1,4}. {clubs[i]}");
         }
+
+        Console.WriteLine(); //Spacing
+
         }catch(Exception){
         Console.WriteLine("Something went wrong in while displaying teams!");
         Environment.Exit(1); //Stops the program
-        }
+        }    
 
+    }
 
-
-    }   
 
     // Load team data from the provided CSV file.
     public List<FootballClub> LoadTeams(string fileName)
@@ -213,6 +263,6 @@ class Program
         return null; //To prevent compile error            }
     }
 
-    }
+    }    
 }
 
