@@ -56,16 +56,27 @@ class Program
                 int homeGoals = int.Parse(matchData[2].Split('-')[0]);
                 int awayGoals = int.Parse(matchData[2].Split('-')[1]);
 
-                // Find the corresponding home and away clubs.
-                var homeClub = clubs.First(c => c.Abbreviation == homeTeamAbbreviation);
-                var awayClub = clubs.First(c => c.Abbreviation == awayTeamAbbreviation);
+                FootballClub homeClub = null;
+                FootballClub awayClub = null;
 
-                //Checks if the teams inside the "rounds" exists inside the teams.csv //Rule 2
-                bool exists = round.Any(innerList => innerList.Contains(awayClub.FullClubName) || innerList.Contains(homeClub.FullClubName));
-
-                if (exists)
+                try
                 {
-                    continue;
+                    // Find the corresponding home and away clubs.
+                    homeClub = clubs.First(c => c.Abbreviation == homeTeamAbbreviation);
+                    awayClub = clubs.First(c => c.Abbreviation == awayTeamAbbreviation);
+
+                    //Checks if the teams inside the "rounds" exists inside the teams.csv //Rule 2
+                    bool exists = round.Any(innerList => innerList.Contains(awayClub.FullClubName) || innerList.Contains(homeClub.FullClubName));
+
+                    if (exists)
+                    {
+                        continue;
+                    }
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("This team doesn't exist!");
+                    
                 }
 
                 // Update club statistics based on match result.
