@@ -1,0 +1,11 @@
+LAVET AF:
+Ferhat & Kristian
+
+KØR PROGRAMMET MED:
+dotnet build
+dotnet run
+
+SE HEREFTER DE 3 TABLES
+
+DER ER TEST CASES I FOLDEREN "TEST"
+
