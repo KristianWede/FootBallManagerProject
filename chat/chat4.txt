@@ -1,0 +1,372 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using FootBallManagerProject;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+
+        Program prg = new Program();
+
+        prg.InitLoad();
+
+    }
+
+    public void InitLoad()
+    {
+        // Load setup, teams, and round data into appropriate data structures.
+        // Assuming you have already loaded the data into the following lists.
+        List<FootballClub> clubs = LoadTeams("./csvfiler/teams.csv");
+        List<List<string>> rounds = LoadRounds(); // Load round data into a list of lists.
+
+        // Process each round to update club statistics.
+
+        int roundCount = 0;
+
+        List<FootballClub> topFract = new List<FootballClub>();
+        List<FootballClub> botFract = new List<FootballClub>();
+
+        foreach (var round in rounds)
+        {
+            roundCount++;
+
+            foreach (var match in round)
+            {
+
+
+                // Split the match data into components.
+                var matchData = match.Split(',');
+                string homeTeamAbbreviation = matchData[0];
+                string awayTeamAbbreviation = matchData[1];
+
+                //Rule 4
+                
+                if(homeTeamAbbreviation.Equals(awayTeamAbbreviation)){
+                    throw new Exception("The same team cannot play against each other.");
+                }
+
+                int homeGoals = int.Parse(matchData[2].Split('-')[0]);
+                int awayGoals = int.Parse(matchData[2].Split('-')[1]);
+
+                // Find the corresponding home and away clubs.
+                var homeClub = clubs.First(c => c.Abbreviation == homeTeamAbbreviation);
+                var awayClub = clubs.First(c => c.Abbreviation == awayTeamAbbreviation);
+
+                //Checks if the teams inside the "rounds" exists inside the teams.csv //Rule 2
+                bool exists = round.Any(innerList => innerList.Contains(awayClub.FullClubName) || innerList.Contains(homeClub.FullClubName));
+
+                if(exists){
+                    continue;
+                }
+
+                    // Update club statistics based on match result.
+                    homeClub.GamesPlayed++;
+                    awayClub.GamesPlayed++;
+
+                    homeClub.GoalsFor += homeGoals;
+                    homeClub.GoalsAgainst += awayGoals;
+                    awayClub.GoalsFor += awayGoals;
+                    awayClub.GoalsAgainst += homeGoals;
+
+                    if (homeGoals > awayGoals)
+                    {
+                        homeClub.GamesWon++;
+                        awayClub.GamesLost++;
+                    }
+                    else if (homeGoals < awayGoals)
+                    {
+                        homeClub.GamesLost++;
+                        awayClub.GamesWon++;
+                    }
+                    else
+                    {
+                        homeClub.GamesDrawn++;
+                        awayClub.GamesDrawn++;
+                    }
+                }
+
+            // Calculate winning streaks after each round (up to 5 latest played games).
+            foreach (var club in clubs)
+            {
+                club.WinningStreak = CalculateWinningStreak(rounds, club.Abbreviation);
+            }
+
+
+
+        if(roundCount == 22){
+
+        try{
+                
+        // Sort clubs by points, goal difference, and goals scored.
+        clubs = clubs.OrderByDescending(c => c.Points)
+                     .ThenByDescending(c => c.GoalDifference)
+                     .ThenByDescending(c => c.GoalsFor)
+                     .ToList();
+
+        topFract = clubs.Take(6).ToList();
+        botFract = clubs.Skip(6).Take(6).ToList();
+
+
+        }catch(Exception){
+        Console.WriteLine("Something went wrong in while processing teams!");
+        Environment.Exit(1); //Stops the program
+        }
+
+        Console.WriteLine("League Table:");
+        displayTeams(clubs);
+
+        }
+    }
+
+    //Insert what happens after all rounds have ended;
+
+    Console.WriteLine("The top fraction as shown;");
+    displayTeams(topFract);
+
+    Console.WriteLine("The bottom fraction as shown");
+    displayTeams(botFract);
+
+}
+
+
+    public void displayTeams(List<FootballClub> clubs){
+
+        try
+        {
+            //To be sure that the lists end up being sorted correctly.
+        clubs = clubs.OrderByDescending(c => c.Points)
+                     .ThenByDescending(c => c.GoalDifference)
+                     .ThenByDescending(c => c.GoalsFor)
+                     .ToList();
+
+
+        // Display the current standings.
+        Console.WriteLine(); // Spacing
+        Console.WriteLine($"{"Pos",4} {"Special",8} {"Club Name",-25} {"GP",3} {"W",3} {"D",3} {"L",3} " +
+                          $"{"GF",3} {"GA",3} {"GD",3} {"Pts",3} {"Winning Streak",12}");
+        Console.WriteLine(new string('-', 80));
+
+            for (int i = 0; i < clubs.Count; i++)
+            {
+                Console.WriteLine($"{i + 1,4}. {clubs[i]}");
+            }
+
+        Console.WriteLine(); //Spacing
+
+        }catch(Exception){
+        Console.WriteLine("Something went wrong in while displaying teams!");
+        Environment.Exit(1); //Stops the program
+        }    
+
+    }
+
+
+    // Load team data from the provided CSV file.
+    public List<FootballClub> LoadTeams(string fileName) //https://chat.openai.com/c/33d96e5a-ad54-497b-971f-2dd26aed23e6
+    {
+        //Rule 1
+        try
+        {
+            //Tjekker om filen existere
+            if (!File.Exists(fileName))
+            {
+                Console.WriteLine($"File '{fileName}' not found.");
+                return null;
+            }
+
+            var teams = new List<FootballClub>();
+            foreach (var line in File.ReadLines(fileName).Skip(1)) // Skip the header line
+            {
+                var club = new FootballClub(line);
+                teams.Add(club);
+            }
+            return teams;
+
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Something went wrong in LoadTeams!");
+            Environment.Exit(1); //Stops the program
+            return null; //To prevent compile error
+        }
+    }
+
+    // Load match data from round files and return them as a list of lists.
+    public List<List<string>> LoadRounds()
+    {
+        //Rule 1
+        try
+        {
+            var rounds = new List<List<string>>();
+            for (int roundNumber = 1; roundNumber <= 32; roundNumber++)
+            {
+                string fileName = $"round-{roundNumber}.csv";
+                if (File.Exists(fileName))
+                {
+                    var roundMatches = File.ReadAllLines(fileName).Skip(1).ToList();
+                    rounds.Add(roundMatches);
+                }
+            }
+            return rounds;
+
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Something went wrong in LoadRounds!");
+            Environment.Exit(1); //Stops the program
+            return null; //To prevent compile error
+        }
+    }
+
+    // Calculate the winning streak for a club based on match data.
+    public string CalculateWinningStreak(List<List<string>> rounds, string clubAbbreviation)
+    {
+        try
+        {
+
+            var streak = new List<string>();
+            for (int i = rounds.Count - 1; i >= 0 && streak.Count < 5; i--)
+            {
+                var roundMatches = rounds[i];
+                foreach (var match in roundMatches)
+                {
+                    var matchData = match.Split(',');
+                    string homeTeamAbbreviation = matchData[0];
+                    string awayTeamAbbreviation = matchData[1];
+                    int homeGoals = int.Parse(matchData[2].Split('-')[0]);
+                    int awayGoals = int.Parse(matchData[2].Split('-')[1]);
+
+                    if (clubAbbreviation == homeTeamAbbreviation)
+                    {
+                        if (homeGoals > awayGoals)
+                            streak.Add("W");
+                        else if (homeGoals < awayGoals)
+                            streak.Add("L");
+                        else
+                            streak.Add("D");
+                    }
+                    else if (clubAbbreviation == awayTeamAbbreviation)
+                    {
+                        if (awayGoals > homeGoals)
+                            streak.Add("W");
+                        else if (awayGoals < homeGoals)
+                            streak.Add("L");
+                        else
+                            streak.Add("D");
+                    }
+                }
+            }
+
+            streak.Reverse();
+            return string.Join("|", streak);
+
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Something went wrong in CalculateWinningStreak!");
+            Environment.Exit(1); //Stops the program
+            return null; //To prevent compile error            }
+        }
+
+    }    
+}
+
+The top lines should be individually coloured to show CL, EL, EC qualification or promotion qualification and the last lines should be individually coloured to show the relegation threat. Apart from that, easy colouring would be nice, such as green, amber, red in streaks, if possible, and/or anything to make it pleasing to the user (Strive to make it look the best to a user, always)
+ChatGPT
+To add color-coding to your console output based on different criteria, you can use ANSI escape codes. These codes allow you to change the text color and background color in a console application. Here's how you can modify your code to achieve this:
+
+Define ANSI escape codes for different colors:
+csharp
+Copy code
+private const string ResetColor = "\x1b[0m";
+private const string GreenColor = "\x1b[32m";
+private const string AmberColor = "\x1b[33m";
+private const string RedColor = "\x1b[31m";
+Modify your displayTeams method to apply color-coding based on different criteria. Here's an example of how you can update the displayTeams method to highlight clubs based on their position and winning streak:
+csharp
+Copy code
+public void displayTeams(List<FootballClub> clubs)
+{
+    try
+    {
+        // To be sure that the lists end up being sorted correctly.
+        clubs = clubs.OrderByDescending(c => c.Points)
+                     .ThenByDescending(c => c.GoalDifference)
+                     .ThenByDescending(c => c.GoalsFor)
+                     .ToList();
+
+        // Display the current standings.
+        Console.WriteLine(); // Spacing
+        Console.WriteLine($"{"Pos",4} {"Special",8} {"Club Name",-25} {"GP",3} {"W",3} {"D",3} {"L",3} " +
+                          $"{"GF",3} {"GA",3} {"GD",3} {"Pts",3} {"Winning Streak",12}");
+        Console.WriteLine(new string('-', 80));
+
+        for (int i = 0; i < clubs.Count; i++)
+        {
+            FootballClub club = clubs[i];
+            string positionColor = i < 6 ? GreenColor : (i >= clubs.Count - 3 ? RedColor : AmberColor);
+
+            Console.WriteLine($"{positionColor}{i + 1,4}. {club}{ResetColor}");
+        }
+
+        Console.WriteLine(); // Spacing
+    }
+    catch (Exception)
+    {
+        Console.WriteLine("Something went wrong while displaying teams!");
+        Environment.Exit(1); // Stops the program
+    }
+}
+In this updated code, clubs in the top 6 positions will be displayed in green, clubs in the bottom 3 positions will be displayed in red, and the rest will be displayed in amber. The ANSI escape codes (\x1b[32m, \x1b[33m, and \x1b[31m) are used to set text color, and \x1b[0m is used to reset the color to the default.
+
+You can similarly modify other parts of your code to apply color-coding based on different criteria, such as CL, EL, EC qualification, promotion qualification, or relegation threat. Just adjust the color logic according to your specific requirements.
+
+
+
+
+User
+in this context, what is relegation threat?
+ChatGPT
+In the context of a football (soccer) league, "relegation threat" refers to the situation where a football club is at risk of being relegated to a lower division or league. In many football league systems, there are multiple divisions, with the top division being the highest and the lower divisions descending in order.
+
+Relegation typically works in the following way:
+
+Promotion and Relegation: The teams that perform well in a lower division (e.g., the second division) may be promoted to the division above (e.g., the first division). Conversely, the teams that finish at the bottom of the higher division may be relegated to the division below.
+
+Relegation Threat: A "relegation threat" is used to describe a situation where a team in the higher division is performing poorly and is in danger of finishing in a relegation position. This means they may be demoted to the lower division in the next season if they don't improve their performance.
+
+Relegation Zone: The "relegation zone" is the specific part of the league table where the teams in danger of relegation are located. It's typically the bottom few positions of the league table.
+
+For example, in a league with 20 teams, the relegation threat might apply to the teams in positions 18, 19, and 20, as they are at risk of finishing in the relegation zone and being relegated to a lower division.
+
+The concept of relegation and promotion adds excitement and competitiveness to football leagues, as clubs have a strong incentive to avoid relegation and strive for promotion to higher divisions.
+
+
+
+
+User
+            string positionColor = i < 6 ? GreenColor : (i >= clubs.Count - 3 ? RedColor : AmberColor);
+Make it into amateur code
+ChatGPT
+Certainly, here's a simplified version of that line of code using if-else statements instead of the conditional (ternary) operator:
+
+csharp
+Copy code
+string positionColor;
+
+if (i < 6)
+{
+    positionColor = GreenColor;
+}
+else if (i >= clubs.Count - 3)
+{
+    positionColor = RedColor;
+}
+else
+{
+    positionColor = AmberColor;
+}
+In this code, positionColor is assigned a color based on the value of i (the club's position in the table). If i is less than 6, it's assigned the GreenColor, if i is greater than or equal to clubs.Count - 3, it's assigned the RedColor, and if neither condition is met, it's assigned the AmberColor.

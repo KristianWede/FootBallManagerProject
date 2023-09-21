@@ -19,7 +19,7 @@ class FootballClub //https://chat.openai.com/share/900f5715-2226-4cec-ab8b-a08ff
     public string WinningStreak { get; set; }
 
     // Constructor to initialize a FootballClub instance from CSV data
-    public FootballClub(string csvData) //https://chat.openai.com/c/33d96e5a-ad54-497b-971f-2dd26aed23e6
+    public FootballClub(string csvData)
     {
         var values = csvData.Split(',');
 

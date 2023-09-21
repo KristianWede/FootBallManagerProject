@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FootBallManagerProject;
 
 class Program
 {
+    private const string ResetColor = "\x1b[0m";
+    private const string GreenColor = "\x1b[32m";
+    private const string AmberColor = "\x1b[33m";
+    private const string RedColor = "\x1b[31m";
+
     static void Main(string[] args)
     {
 
@@ -43,8 +47,9 @@ class Program
                 string awayTeamAbbreviation = matchData[1];
 
                 //Rule 4
-                
-                if(homeTeamAbbreviation.Equals(awayTeamAbbreviation)){
+
+                if (homeTeamAbbreviation.Equals(awayTeamAbbreviation))
+                {
                     throw new Exception("The same team cannot play against each other.");
                 }
 
@@ -58,35 +63,36 @@ class Program
                 //Checks if the teams inside the "rounds" exists inside the teams.csv //Rule 2
                 bool exists = round.Any(innerList => innerList.Contains(awayClub.FullClubName) || innerList.Contains(homeClub.FullClubName));
 
-                if(exists){
+                if (exists)
+                {
                     continue;
                 }
 
-                    // Update club statistics based on match result.
-                    homeClub.GamesPlayed++;
-                    awayClub.GamesPlayed++;
+                // Update club statistics based on match result.
+                homeClub.GamesPlayed++;
+                awayClub.GamesPlayed++;
 
-                    homeClub.GoalsFor += homeGoals;
-                    homeClub.GoalsAgainst += awayGoals;
-                    awayClub.GoalsFor += awayGoals;
-                    awayClub.GoalsAgainst += homeGoals;
+                homeClub.GoalsFor += homeGoals;
+                homeClub.GoalsAgainst += awayGoals;
+                awayClub.GoalsFor += awayGoals;
+                awayClub.GoalsAgainst += homeGoals;
 
-                    if (homeGoals > awayGoals)
-                    {
-                        homeClub.GamesWon++;
-                        awayClub.GamesLost++;
-                    }
-                    else if (homeGoals < awayGoals)
-                    {
-                        homeClub.GamesLost++;
-                        awayClub.GamesWon++;
-                    }
-                    else
-                    {
-                        homeClub.GamesDrawn++;
-                        awayClub.GamesDrawn++;
-                    }
+                if (homeGoals > awayGoals)
+                {
+                    homeClub.GamesWon++;
+                    awayClub.GamesLost++;
                 }
+                else if (homeGoals < awayGoals)
+                {
+                    homeClub.GamesLost++;
+                    awayClub.GamesWon++;
+                }
+                else
+                {
+                    homeClub.GamesDrawn++;
+                    awayClub.GamesDrawn++;
+                }
+            }
 
             // Calculate winning streaks after each round (up to 5 latest played games).
             foreach (var club in clubs)
@@ -96,76 +102,96 @@ class Program
 
 
 
-        if(roundCount == 22){
+            if (roundCount == 22)
+            {
 
-        try{
-                
-        // Sort clubs by points, goal difference, and goals scored.
-        clubs = clubs.OrderByDescending(c => c.Points)
-                     .ThenByDescending(c => c.GoalDifference)
-                     .ThenByDescending(c => c.GoalsFor)
-                     .ToList();
+                try
+                {
 
-        topFract = clubs.Take(6).ToList();
-        botFract = clubs.Skip(6).Take(6).ToList();
+                    // Sort clubs by points, goal difference, and goals scored.
+                    clubs = clubs.OrderByDescending(c => c.Points)
+                                 .ThenByDescending(c => c.GoalDifference)
+                                 .ThenByDescending(c => c.GoalsFor)
+                                 .ToList();
+
+                    topFract = clubs.Take(6).ToList();
+                    botFract = clubs.Skip(6).Take(6).ToList();
 
 
-        }catch(Exception){
-        Console.WriteLine("Something went wrong in while processing teams!");
-        Environment.Exit(1); //Stops the program
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Something went wrong in while processing teams!");
+                    Environment.Exit(1); //Stops the program
+                }
+
+                Console.WriteLine("League Table:");
+                displayTeams(clubs);
+
+            }
         }
 
-        Console.WriteLine("League Table:");
-        displayTeams(clubs);
+        //Insert what happens after all rounds have ended;
 
-        }
+        Console.WriteLine("The top fraction as shown;");
+        displayTeams(topFract);
+
+        Console.WriteLine("The bottom fraction as shown");
+        displayTeams(botFract);
+
     }
 
-    //Insert what happens after all rounds have ended;
 
-    Console.WriteLine("The top fraction as shown;");
-    displayTeams(topFract);
-
-    Console.WriteLine("The bottom fraction as shown");
-    displayTeams(botFract);
-
-}
-
-
-    public void displayTeams(List<FootballClub> clubs){
-
+    public void displayTeams(List<FootballClub> clubs)
+    {
         try
         {
-            //To be sure that the lists end up being sorted correctly.
-        clubs = clubs.OrderByDescending(c => c.Points)
-                     .ThenByDescending(c => c.GoalDifference)
-                     .ThenByDescending(c => c.GoalsFor)
-                     .ToList();
+            // To be sure that the lists end up being sorted correctly.
+            clubs = clubs.OrderByDescending(c => c.Points)
+                         .ThenByDescending(c => c.GoalDifference)
+                         .ThenByDescending(c => c.GoalsFor)
+                         .ToList();
 
-
-        // Display the current standings.
-        Console.WriteLine(); // Spacing
-        Console.WriteLine($"{"Pos",4} {"Special",8} {"Club Name",-25} {"GP",3} {"W",3} {"D",3} {"L",3} " +
-                          $"{"GF",3} {"GA",3} {"GD",3} {"Pts",3} {"Winning Streak",12}");
-        Console.WriteLine(new string('-', 80));
+            // Display the current standings.
+            Console.WriteLine(); // Spacing
+            Console.WriteLine($"{"Pos",4} {"Special",8} {"Club Name",-25} {"GP",3} {"W",3} {"D",3} {"L",3} " +
+                              $"{"GF",3} {"GA",3} {"GD",3} {"Pts",3} {"Winning Streak",12}");
+            Console.WriteLine(new string('-', 80));
 
             for (int i = 0; i < clubs.Count; i++)
             {
-                Console.WriteLine($"{i + 1,4}. {clubs[i]}");
+                FootballClub club = clubs[i];
+                string positionColor;
+
+                if (i < 6)
+                {
+                    positionColor = GreenColor;
+                }
+                else if (i >= clubs.Count - 3)
+                {
+                    positionColor = RedColor;
+                }
+                else
+                {
+                    positionColor = AmberColor;
+                }
+
+                Console.WriteLine($"{positionColor}{i + 1,4}. {club}{ResetColor}");
             }
 
-        Console.WriteLine(); //Spacing
-
-        }catch(Exception){
-        Console.WriteLine("Something went wrong in while displaying teams!");
-        Environment.Exit(1); //Stops the program
-        }    
-
+            Console.WriteLine(); // Spacing
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Something went wrong while displaying teams!");
+            Environment.Exit(1); // Stops the program
+        }
     }
 
 
+
     // Load team data from the provided CSV file.
-    public List<FootballClub> LoadTeams(string fileName) //https://chat.openai.com/c/33d96e5a-ad54-497b-971f-2dd26aed23e6
+    public List<FootballClub> LoadTeams(string fileName)
     {
         //Rule 1
         try
@@ -271,6 +297,6 @@ class Program
             return null; //To prevent compile error            }
         }
 
-    }    
+    }
 }
 
