@@ -1,0 +1,169 @@
+I need some dummydata.
+This is my assignment description "Football leagues in Denmark is organised in tiers. The first tier (SuperLigaen) use the same tournament style as the second tier (NordicBetLigaen), which mean that handling scores is done in a uniform manner.
+
+ 
+
+Each tier is composed of 12 teams, that play internally between themselves in 22 rounds, after which the tier is split into an upper and lower fraction, each consisting of 6 teams. Each fraction then play internally between themselves in 10 additional rounds, after which the table is then finished.
+
+ 
+
+Your job is to implement a football processor application, that based on a lot of comma-separated files inside a directory can process and print the necessary information on the console as well as into a result file in the same directory.
+
+ 
+
+There could be any number of files available, depending on the current data, so the processor should process any number of files from one end to the other, and after processing each file it must present the current table standings of the league. The files are all csv files (Comma Separated Values), so they can be edited in a spreadsheet easily."
+
+i need a setup.csv file
+The setup file contain a line on the league setup, such as
+
+League name
+Number of positions to promote to Champions league 
+(usually 1 in Superligaen, 0 in NordicBetLigaen, they have promotions instead)
+Number of subsequent positions to promote to Europe league
+Number of subsequent positions to promote to Conference League
+Number of positions to promote to an upper league 
+(when the above is all zero, these ones are show, so 2 in NordicBetLigaen, 0 in Superligaen)
+Number of final positions that are to be relegated into a lower league (usually 2)
+ChatGPT
+Certainly, here's a sample setup.csv file for your football league processing application based on the provided assignment description:
+
+csv
+Copy code
+League name,Number of positions to promote to Champions league,Number of subsequent positions to promote to Europe league,Number of subsequent positions to promote to Conference League,Number of positions to promote to an upper league,Number of final positions that are to be relegated into a lower league
+SuperLigaen,1,2,3,0,2
+NordicBetLigaen,0,0,0,2,2
+You can use this CSV file as a starting point for your application's configuration, and you can modify the values as needed to match the specific league setup you're working with. Make sure to place this setup.csv file in the same directory as your other CSV files for processing.
+
+
+
+
+I need a teams.csv file
+The teams file contains information about the individual clubs, Each club specify, in this order:
+
+Abbreviation
+Full club name
+Special ranking 
+(W-last years champion, C-Last years cup winner, P-Promoted team, R-Relegated team)
+ChatGPT
+Here's a sample teams.csv file with information about individual clubs, following the specified order:
+
+csv
+Copy code
+Abbreviation,Full club name,Special ranking
+FCK,FC København,W
+BIF,Brøndby IF,C
+AGF,Aarhus GF,
+RFC,Randers FC,
+OB,Odense Boldklub,
+FCM,FC Midtjylland,
+AaB,Aalborg BK,
+EFB,Esbjerg fB,
+VB,Viborg FF,P
+SIF,Silkeborg IF,P
+ACH,Akademisk Boldklub,P
+HOB,Hobro IK,R
+In this example, we have 12 clubs with their abbreviations, full club names, and special rankings as specified in the assignment description. You can add more clubs or modify the information as needed to match the clubs in your league data.
+
+
+
+
+I also need 
+round-1.csv
+round-2.csv
+…
+round-32.cvs files
+
+When processing the individual rounds, the file contains the following items
+
+Home team abbreviated
+Away team abbreviated
+Score (x-y) where x is home team goals and y is away team goals
+Other data may exist after that.
+ChatGPT
+Certainly, here's a sample format for the round-1.csv, round-2.csv, and so on, up to round-32.csv files with the specified items:
+
+For round-1.csv:
+
+csv
+Copy code
+Home team abbreviated,Away team abbreviated,Score
+FCK,BIF,2-1
+AGF,RFC,0-0
+OB,FCM,1-3
+AaB,EFB,2-0
+VB,SIF,1-1
+ACH,HOB,2-1
+For round-2.csv:
+
+csv
+Copy code
+Home team abbreviated,Away team abbreviated,Score
+BIF,AGF,1-1
+RFC,OB,0-2
+FCM,AaB,2-1
+EFB,VB,0-0
+SIF,ACH,1-2
+HOB,FCK,0-3
+You can continue this format for each of the round-x.csv files up to round-32.csv. Each file should contain the home team, away team, and the score for that particular round's matches as specified in your assignment description. You can replace the teams and scores with your actual data for each round.
+
+
+
+
+continue
+ChatGPT
+Certainly, here's a continuation of the sample format for the round-3.csv and round-4.csv files:
+
+For round-3.csv:
+
+csv
+Copy code
+Home team abbreviated,Away team abbreviated,Score
+AGF,FCM,1-0
+OB,BIF,2-2
+AaB,SIF,2-1
+VB,RFC,0-1
+EFB,HOB,1-2
+ACH,FCK,0-1
+For round-4.csv:
+
+csv
+Copy code
+Home team abbreviated,Away team abbreviated,Score
+BIF,ACH,2-1
+RFC,VB,1-0
+FCM,EFB,3-0
+SIF,OB,1-1
+HOB,AGF,0-2
+FCK,AaB,1-0
+You can continue this pattern for each of the round-x.csv files up to round-32.csv, filling in the actual match data for each round as needed for your football league processing application.
+
+
+
+
+continue
+ChatGPT
+Certainly, here's a continuation of the sample format for the round-5.csv and round-6.csv files:
+
+For round-5.csv:
+
+csv
+Copy code
+Home team abbreviated,Away team abbreviated,Score
+OB,FCK,0-1
+BIF,SIF,2-2
+RFC,HOB,1-0
+EFB,AGF,0-2
+VB,AaB,1-1
+ACH,FCM,1-3
+For round-6.csv:
+
+csv
+Copy code
+Home team abbreviated,Away team abbreviated,Score
+FCK,ACH,3-0
+SIF,RFC,2-0
+HOB,EFB,1-2
+AGF,VB,1-1
+AaB,OB,0-1
+FCM,BIF,2-2
+You can continue this pattern for each of the round-x.csv files up to round-32.csv, filling in the actual match data for each round as needed for your football league processing application. Remember to adjust the scores and team abbreviations to match your specific league data.
